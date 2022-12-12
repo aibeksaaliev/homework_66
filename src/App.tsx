@@ -11,8 +11,10 @@ import axiosApi from "./axiosApi";
 function App() {
   const location = useLocation();
   const [meals, setMeals] = useState<MealType []>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchMeals = useCallback(async () => {
+    setLoading(true);
     const mealsResponse = await axiosApi.get<MealsType | null>("/meals.json");
     const meals =mealsResponse.data;
 
@@ -29,6 +31,7 @@ function App() {
     }
 
     setMeals(mealsFromApi);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -39,7 +42,7 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={(
-          <Home meals={meals} fetchMeals={fetchMeals}/>
+          <Home meals={meals} fetchMeals={fetchMeals} isLoading={loading}/>
         )}/>
         <Route path="/new_meal" element={(
           <NewMeal/>

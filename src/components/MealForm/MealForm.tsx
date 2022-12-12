@@ -2,15 +2,17 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Form} from "react-bootstrap";
 import {MealApiType} from "../../types";
 import axiosApi from "../../axiosApi";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import ButtonSpinner from "../ButtonSpinner/ButtonSpinner";
 
 const MealForm = () => {
   const {id} = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [mealInfo, setMealInfo] = useState<MealApiType>({
     mealTime: "",
     dishDescription: "",
-    calories: ""
+    calories: "",
   });
 
   const fetchMealInfo = useCallback(async () => {
@@ -41,18 +43,39 @@ const MealForm = () => {
   };
 
   const onFormSubmit = async (e: React.FormEvent) => {
+    setLoading(true);
     e.preventDefault();
-    await axiosApi.post("/meals.json", mealInfo);
+    if (id) {
+      await axiosApi.put("/meals/" + id + ".json", mealInfo);
+    } else {
+      if (mealInfo.mealTime) {
+        await axiosApi.post("/meals.json", mealInfo);
+      } else {
+        alert("Choose a meal");
+        setLoading(false);
+        return;
+      }
+    }
     navigate("/");
-  }
+    setLoading(false);
+  };
 
   return (
     <Form
       className="w-50 m-auto text-center"
       onSubmit={onFormSubmit}>
+      {/*<Form.Group>*/}
+      {/*  <Form.Control*/}
+      {/*    type="date"*/}
+      {/*    name="date"*/}
+      {/*    value={mealInfo.mealTime}*/}
+      {/*    onChange={onInputChange}*/}
+      {/*  />*/}
+      {/*</Form.Group>*/}
       <Form.Group className="mb-3">
         <Form.Label>Meal</Form.Label>
         <Form.Select name="mealTime" value={mealInfo.mealTime} onChange={onSelectChange}>
+          <option hidden value="">Choose a meal</option>
           <option value="breakfast">Breakfast</option>
           <option value="snack">Snack</option>
           <option value="lunch">Lunch</option>
@@ -63,6 +86,7 @@ const MealForm = () => {
         <Form.Label>Meal Description</Form.Label>
         <Form.Control
           type="text"
+          required
           name="dishDescription"
           placeholder="Type a dish description"
           value={mealInfo.dishDescription}
@@ -73,6 +97,7 @@ const MealForm = () => {
         <Form.Label>Meal Calories</Form.Label>
         <Form.Control
           type="number"
+          required
           name="calories"
           placeholder="Enter calories"
           value={mealInfo.calories}
@@ -80,7 +105,14 @@ const MealForm = () => {
         />
       </Form.Group>
       <Form.Group className="mb-3">
-        <Button type="submit" variant={"dark"}><i className="bi bi-save"></i></Button>
+        <Button
+          type="submit"
+          variant={"dark"}
+          size="sm"
+          disabled={loading}
+        >
+          {loading ? <ButtonSpinner/> : <i className="bi bi-save"></i>}
+        </Button>
       </Form.Group>
     </Form>
   );
