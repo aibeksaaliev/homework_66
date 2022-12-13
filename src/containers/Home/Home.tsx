@@ -1,20 +1,23 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Link} from "react-router-dom";
 import MealCard from "../../components/MealCard/MealCard";
-import {MealType} from "../../types";
+import {MealDateType} from "../../types";
 import axiosApi from "../../axiosApi";
 import LoadSpinner from "../../components/LoadSpinner/LoadSpinner";
 import ButtonSpinner from "../../components/ButtonSpinner/ButtonSpinner";
 
 interface HomeProps {
-  meals: MealType [];
+  meals: MealDateType [];
   fetchMeals: () => void;
   isLoading: boolean;
 }
 
 const Home: React.FC<HomeProps> = ({meals, fetchMeals, isLoading}) => {
   const totalCalories = meals.reduce((acc, meal) => {
-    return acc + parseInt(meal.calories);
+    if (meal.date.toISOString().split('T')[0] === new Date().toISOString().split('T')[0]) {
+      return acc + parseInt(meal.calories);
+    }
+    return acc;
   }, 0);
 
   const deleteMeal = async (id: string) => {

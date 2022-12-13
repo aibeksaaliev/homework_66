@@ -4,27 +4,32 @@ import {MealApiType} from "../../types";
 import axiosApi from "../../axiosApi";
 import {useNavigate, useParams} from "react-router-dom";
 import ButtonSpinner from "../ButtonSpinner/ButtonSpinner";
+import LoadSpinner from "../LoadSpinner/LoadSpinner";
 
 const MealForm = () => {
   const {id} = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [mealInfo, setMealInfo] = useState<MealApiType>({
     mealTime: "",
     dishDescription: "",
     calories: "",
+    date: new Date().toISOString().split('T')[0],
   });
 
   const fetchMealInfo = useCallback(async () => {
+    setPageLoading(true);
     const mealInfoResponse = await axiosApi.get<MealApiType>("/meals/" + id + ".json");
     setMealInfo(mealInfoResponse.data);
+    setPageLoading(false);
   }, [id]);
 
   useEffect(() => {
     if (id) {
       void fetchMealInfo().catch(console.error);
     }
-  }, [id ,fetchMealInfo]);
+  }, [id, fetchMealInfo]);
 
   const onSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const {name, value} = e.target;
@@ -38,7 +43,7 @@ const MealForm = () => {
     const {name, value} = e.target;
     setMealInfo(prevState => ({
       ...prevState,
-        [name]: value
+      [name]: value
     }));
   };
 
@@ -50,28 +55,37 @@ const MealForm = () => {
     } else {
       if (mealInfo.mealTime) {
         await axiosApi.post("/meals.json", mealInfo);
+        navigate("/");
       } else {
         alert("Choose a meal");
         setLoading(false);
         return;
       }
     }
-    navigate("/");
     setLoading(false);
   };
 
-  return (
+  const onDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target;
+    setMealInfo(prevState => ({
+      ...prevState,
+      [name]: value
+    }))
+  }
+
+  const formContent = pageLoading ? <LoadSpinner/> : (
     <Form
       className="w-50 m-auto text-center"
       onSubmit={onFormSubmit}>
-      {/*<Form.Group>*/}
-      {/*  <Form.Control*/}
-      {/*    type="date"*/}
-      {/*    name="date"*/}
-      {/*    value={mealInfo.mealTime}*/}
-      {/*    onChange={onInputChange}*/}
-      {/*  />*/}
-      {/*</Form.Group>*/}
+      <Form.Group>
+        <Form.Label>Select Date</Form.Label>
+        <Form.Control
+          type="date"
+          name="date"
+          value={mealInfo.date.toString()}
+          onChange={onDateChange}
+        />
+      </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label>Meal</Form.Label>
         <Form.Select name="mealTime" value={mealInfo.mealTime} onChange={onSelectChange}>
@@ -115,6 +129,12 @@ const MealForm = () => {
         </Button>
       </Form.Group>
     </Form>
+  )
+
+  return (
+    <>
+      {formContent}
+    </>
   );
 };
 
