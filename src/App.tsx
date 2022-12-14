@@ -1,16 +1,18 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import Layout from "./components/Layout/Layout";
-import Home from "./containers/Home/Home";
 import {Route, Routes, useLocation} from "react-router-dom";
-import NewMeal from "./containers/NewMeal/NewMeal";
-import EditMeal from "./containers/EditMeal/EditMeal";
 import {MealsType, MealDateType} from "./types";
 import axiosApi from "./axiosApi";
+import Layout from "./components/Layout/Layout";
+import Home from "./containers/Home/Home";
+import NewMeal from "./containers/NewMeal/NewMeal";
+import EditMeal from "./containers/EditMeal/EditMeal";
 
 function App() {
   const location = useLocation();
   const [meals, setMeals] = useState<MealDateType []>([]);
   const [loading, setLoading] = useState(false);
+
+
 
   const fetchMeals = useCallback(async () => {
     setLoading(true);

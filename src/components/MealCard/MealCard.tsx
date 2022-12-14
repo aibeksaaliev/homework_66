@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {Button, Card} from "react-bootstrap";
 import {Link} from "react-router-dom";
 import {MealDateType} from "../../types";
+import {format} from "date-fns";
+import {Button, Card} from "react-bootstrap";
 import ButtonSpinner from "../ButtonSpinner/ButtonSpinner";
 
 interface MealCardProps {
@@ -22,7 +23,7 @@ const MealCard: React.FC<MealCardProps> = ({meal, onDelete}) => {
     <Card className="d-flex flex-row mb-2">
       <Card.Body>
         <Card.Title className="text-capitalize">{meal.mealTime}</Card.Title>
-        <Card.Text className="text-capitalize">{meal.date.toISOString().split('T')[0]}</Card.Text>
+        <Card.Text className="text-capitalize">{format(meal.date, "yyyy-MM-dd")}</Card.Text>
         <Card.Text className="text-capitalize">{meal.dishDescription}</Card.Text>
         <Card.Text>{meal.calories}</Card.Text>
       </Card.Body>

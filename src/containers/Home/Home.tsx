@@ -1,11 +1,11 @@
 import React from 'react';
 import {Link} from "react-router-dom";
-import MealCard from "../../components/MealCard/MealCard";
 import {MealDateType} from "../../types";
 import axiosApi from "../../axiosApi";
+import {format} from "date-fns";
+import MealCard from "../../components/MealCard/MealCard";
 import LoadSpinner from "../../components/LoadSpinner/LoadSpinner";
 import ButtonSpinner from "../../components/ButtonSpinner/ButtonSpinner";
-import {format} from "date-fns";
 
 interface HomeProps {
   meals: MealDateType [];
