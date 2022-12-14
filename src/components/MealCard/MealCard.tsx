@@ -12,12 +12,11 @@ interface MealCardProps {
 const MealCard: React.FC<MealCardProps> = ({meal, onDelete}) => {
   const [loading, setLoading] = useState(false);
 
-  const setSpinner = async (id: string) => {
+  const deleteMeal = async (id: string) => {
     setLoading(true);
     await onDelete(id);
     setLoading(false);
   };
-
 
   return (
     <Card className="d-flex flex-row mb-2">
@@ -29,7 +28,7 @@ const MealCard: React.FC<MealCardProps> = ({meal, onDelete}) => {
       </Card.Body>
       <Card.Footer className="d-flex flex-column justify-content-around p-0 bg-white border-0 rounded-2 px-2">
         <Link to={"/edit_meal/" + meal.id} className="btn btn-dark rounded-2"><i className="bi bi-pencil"></i></Link>
-        <Button onClick={() => setSpinner(meal.id)} className="btn btn-dark rounded-2">
+        <Button onClick={() => deleteMeal(meal.id)} className="btn btn-dark rounded-2">
           {loading ? <ButtonSpinner/> : <i className="bi bi-x-circle"></i>}
         </Button>
       </Card.Footer>

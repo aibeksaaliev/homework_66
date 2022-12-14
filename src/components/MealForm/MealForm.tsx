@@ -5,6 +5,7 @@ import axiosApi from "../../axiosApi";
 import {useNavigate, useParams} from "react-router-dom";
 import ButtonSpinner from "../ButtonSpinner/ButtonSpinner";
 import LoadSpinner from "../LoadSpinner/LoadSpinner";
+import {format} from "date-fns";
 
 const MealForm = () => {
   const {id} = useParams();
@@ -15,14 +16,17 @@ const MealForm = () => {
     mealTime: "",
     dishDescription: "",
     calories: "",
-    date: new Date().toISOString().split('T')[0],
+    date: format(new Date(),'yyyy-MM-dd'),
   });
 
   const fetchMealInfo = useCallback(async () => {
     setPageLoading(true);
-    const mealInfoResponse = await axiosApi.get<MealApiType>("/meals/" + id + ".json");
-    setMealInfo(mealInfoResponse.data);
-    setPageLoading(false);
+    try {
+      const mealInfoResponse = await axiosApi.get<MealApiType>("/meals/" + id + ".json");
+      setMealInfo(mealInfoResponse.data);
+    } finally {
+      setPageLoading(false);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -48,30 +52,27 @@ const MealForm = () => {
   };
 
   const onFormSubmit = async (e: React.FormEvent) => {
-    setLoading(true);
     e.preventDefault();
-    if (id) {
-      await axiosApi.put("/meals/" + id + ".json", mealInfo);
-    } else {
-      if (mealInfo.mealTime) {
-        await axiosApi.post("/meals.json", mealInfo);
-        navigate("/");
+    setLoading(true);
+    try {
+      if (id) {
+        await axiosApi.put("/meals/" + id + ".json", mealInfo);
       } else {
-        alert("Choose a meal");
-        setLoading(false);
-        return;
+        if (mealInfo.mealTime) {
+          await axiosApi.post("/meals.json", mealInfo);
+          navigate("/");
+        } else {
+          alert("Choose a meal");
+          setLoading(false);
+          return;
+        }
       }
+    } catch (e) {
+      throw new Error();
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  const onDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setMealInfo(prevState => ({
-      ...prevState,
-      [name]: value
-    }))
-  }
 
   const formContent = pageLoading ? <LoadSpinner/> : (
     <Form
@@ -82,8 +83,8 @@ const MealForm = () => {
         <Form.Control
           type="date"
           name="date"
-          value={mealInfo.date.toString()}
-          onChange={onDateChange}
+          value={mealInfo.date}
+          onChange={onInputChange}
         />
       </Form.Group>
       <Form.Group className="mb-3">

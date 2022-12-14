@@ -5,6 +5,7 @@ import {MealDateType} from "../../types";
 import axiosApi from "../../axiosApi";
 import LoadSpinner from "../../components/LoadSpinner/LoadSpinner";
 import ButtonSpinner from "../../components/ButtonSpinner/ButtonSpinner";
+import {format} from "date-fns";
 
 interface HomeProps {
   meals: MealDateType [];
@@ -14,7 +15,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({meals, fetchMeals, isLoading}) => {
   const totalCalories = meals.reduce((acc, meal) => {
-    if (meal.date.toISOString().split('T')[0] === new Date().toISOString().split('T')[0]) {
+    if (format(meal.date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd")) {
       return acc + parseInt(meal.calories);
     }
     return acc;
